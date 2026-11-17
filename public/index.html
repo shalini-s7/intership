@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Clean and responsive internship web application with Express REST API integration." />
-  <title>TaskPulse | Internship Project Management</title>
+  <meta name="description" content="Clean and responsive full-stack task manager with Express, Mongoose schemas, MongoDB Atlas, and complete CRUD endpoints." />
+  <title>TaskPulse | MongoDB & Express Full-Stack Project</title>
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +18,7 @@
       <a href="#top" class="brand-logo" aria-label="TaskPulse Home">
         <span class="logo-icon">⚡</span>
         <span class="logo-text">Task<span>Pulse</span></span>
-        <span class="badge-tag">Internship</span>
+        <span class="badge-tag">MongoDB &bull; CRUD</span>
       </a>
 
       <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false">
@@ -32,7 +32,7 @@
           <li><a href="#dashboard" class="nav-link active">Dashboard</a></li>
           <li><a href="#tasks-section" class="nav-link">Tasks</a></li>
           <li><a href="#create-section" class="nav-link">New Task</a></li>
-          <li><a href="#api-info" class="nav-link">REST API</a></li>
+          <li><a href="#api-info" class="nav-link">CRUD & Schema</a></li>
         </ul>
         <div class="nav-actions">
           <a href="https://github.com/shalini-s7/intership" target="_blank" rel="noopener noreferrer" class="btn btn-github">
@@ -53,14 +53,14 @@
     <section class="hero-section" id="dashboard">
       <div class="container hero-container">
         <div class="hero-text">
-          <div class="pill-badge">Full-Stack Web Architecture</div>
-          <h1 class="hero-title">Internship Task & REST API Platform</h1>
+          <div class="pill-badge">Full-Stack Database Architecture</div>
+          <h1 class="hero-title">MongoDB Atlas & Mongoose CRUD Platform</h1>
           <p class="hero-subtitle">
-            A responsive full-stack application engineered with an Express.js backend and clean modern frontend. Features real-time client-server communication using modern <code class="code-pill">fetch()</code> API across three REST endpoints.
+            Engineered with <strong>MongoDB Atlas</strong>, <strong>Mongoose Schema validation</strong>, and complete <strong>RESTful CRUD</strong> operations (<code class="code-pill">POST</code>, <code class="code-pill">GET</code>, <code class="code-pill">PUT</code>, <code class="code-pill">DELETE</code>) seamlessly integrated with a responsive frontend.
           </p>
           <div class="hero-buttons">
             <a href="#create-section" class="btn btn-primary">+ Create Task (POST)</a>
-            <a href="#tasks-section" class="btn btn-secondary">Explore All Tasks (GET)</a>
+            <a href="#tasks-section" class="btn btn-secondary">Explore Tasks (GET &bull; PUT &bull; DELETE)</a>
           </div>
         </div>
 
@@ -107,7 +107,7 @@
           <div class="card-header">
             <div class="badge-post">POST /api/tasks</div>
             <h2 class="card-title">Add New Task</h2>
-            <p class="card-subtitle">Submits a JSON payload to the backend via asynchronous <code>fetch()</code></p>
+            <p class="card-subtitle">Submits validated payload to MongoDB via Mongoose schema</p>
           </div>
 
           <form id="createTaskForm" class="task-form" novalidate>
@@ -118,7 +118,9 @@
                 id="taskTitle" 
                 name="title" 
                 class="form-input" 
-                placeholder="e.g. Implement JWT Authentication" 
+                placeholder="e.g. Implement MongoDB Atlas Indexing" 
+                minlength="3"
+                maxlength="100"
                 required 
               />
               <span class="field-error" id="titleError"></span>
@@ -132,6 +134,8 @@
                 rows="3" 
                 class="form-input form-textarea" 
                 placeholder="Detailed objectives, criteria, and requirements..." 
+                minlength="5"
+                maxlength="1000"
                 required
               ></textarea>
               <span class="field-error" id="descriptionError"></span>
@@ -147,6 +151,7 @@
                   <option value="Database">Database</option>
                   <option value="DevOps">DevOps</option>
                   <option value="Testing">Testing</option>
+                  <option value="General">General</option>
                 </select>
               </div>
 
@@ -185,6 +190,7 @@
                 class="form-input" 
                 placeholder="e.g. Shalini S" 
                 value="Shalini S"
+                maxlength="60"
               />
             </div>
 
@@ -199,7 +205,7 @@
         </div>
       </aside>
 
-      <!-- Right Column: Task List (GET all) and Single View (GET one) -->
+      <!-- Right Column: Task List (GET all, PUT update, DELETE) -->
       <section class="tasks-content" id="tasks-section">
         
         <!-- Controls Bar: Filter, Search & Refresh -->
@@ -226,6 +232,8 @@
               <option value="Fullstack">Fullstack</option>
               <option value="Database">Database</option>
               <option value="DevOps">DevOps</option>
+              <option value="Testing">Testing</option>
+              <option value="General">General</option>
             </select>
 
             <select id="filterStatus" class="filter-select" aria-label="Filter by status">
@@ -248,10 +256,12 @@
         <!-- Task List Header -->
         <div class="tasks-header">
           <div>
-            <h2 class="tasks-heading">Tasks & Deliverables</h2>
-            <p class="tasks-subtext">Populated via <code>GET /api/tasks</code></p>
+            <h2 class="tasks-heading">Task Management Board</h2>
+            <p class="tasks-subtext">Live Mongoose CRUD Operations (GET &bull; POST &bull; PUT &bull; DELETE)</p>
           </div>
-          <span class="endpoint-badge">GET /api/tasks</span>
+          <div class="badge-cluster">
+            <span class="endpoint-badge">CRUD Active</span>
+          </div>
         </div>
 
         <!-- Dynamic Container for Task Cards -->
@@ -275,28 +285,43 @@
 
     </section>
 
-    <!-- REST API Documentation Reference Strip -->
+    <!-- REST API & Schema Specification Section -->
     <section class="api-section container" id="api-info">
       <div class="api-card">
         <div class="api-card-header">
-          <span class="api-tag">REST API Architecture</span>
-          <h3 class="api-title">Implemented Endpoints Specification</h3>
+          <span class="api-tag">Database Architecture &bull; Mongoose Schema</span>
+          <h3 class="api-title">Full CRUD Endpoints & Validation Rules</h3>
         </div>
         <div class="api-grid">
           <div class="api-item">
+            <span class="method post">POST</span>
+            <code class="endpoint">/api/tasks</code>
+            <p class="endpoint-desc">Creates new task in MongoDB. Validates title (min 3 chars), description (min 5 chars), and enums.</p>
+          </div>
+          <div class="api-item">
             <span class="method get">GET</span>
             <code class="endpoint">/api/tasks</code>
-            <p class="endpoint-desc">Retrieves list of all tasks. Supports optional query filters.</p>
+            <p class="endpoint-desc">Retrieves all tasks with optional query filters (search, category, status, sortBy).</p>
           </div>
           <div class="api-item">
             <span class="method get">GET</span>
             <code class="endpoint">/api/tasks/:id</code>
-            <p class="endpoint-desc">Retrieves a single task by numeric ID with full metadata.</p>
+            <p class="endpoint-desc">Retrieves a single task by ID. Validates MongoDB ObjectId format, returns 404 if not found.</p>
           </div>
           <div class="api-item">
-            <span class="method post">POST</span>
-            <code class="endpoint">/api/tasks</code>
-            <p class="endpoint-desc">Creates a new task record from JSON body with validation.</p>
+            <span class="method put">PUT</span>
+            <code class="endpoint">/api/tasks/:id</code>
+            <p class="endpoint-desc">Updates task fields with Mongoose <code>runValidators: true</code>. Returns updated document.</p>
+          </div>
+          <div class="api-item">
+            <span class="method delete">DELETE</span>
+            <code class="endpoint">/api/tasks/:id</code>
+            <p class="endpoint-desc">Deletes task document from MongoDB by ID. Returns deleted record confirmation.</p>
+          </div>
+          <div class="api-item">
+            <span class="method get">GET</span>
+            <code class="endpoint">/api/health</code>
+            <p class="endpoint-desc">Health probe returning server uptime and MongoDB connection state.</p>
           </div>
         </div>
       </div>
@@ -313,11 +338,11 @@
           <span class="logo-text">Task<span>Pulse</span></span>
         </div>
         <p class="footer-desc">
-          A high-performance, responsive full-stack project built for internship evaluation. Demonstrates Express.js backend services, semantic HTML5, modern CSS, and asynchronous frontend integration.
+          Full-stack database architecture project built with MongoDB Atlas, Mongoose schemas, Express.js REST API, and modern responsive frontend.
         </p>
-        <div class="server-badge">
+        <div class="server-badge" id="dbStatusBadge">
           <span class="status-dot"></span>
-          <span>Backend Server: <strong>Active on Express</strong></span>
+          <span>Database: <strong id="dbStatusText">MongoDB Atlas Ready</strong></span>
         </div>
       </div>
 
@@ -327,17 +352,17 @@
           <li><a href="#dashboard">Dashboard</a></li>
           <li><a href="#tasks-section">Task Board</a></li>
           <li><a href="#create-section">Create Task</a></li>
-          <li><a href="#api-info">API Spec</a></li>
+          <li><a href="#api-info">CRUD & Schema Spec</a></li>
         </ul>
       </div>
 
       <div class="footer-col">
         <h4 class="footer-title">Tech Stack</h4>
         <ul class="footer-links">
-          <li><span class="bullet">•</span> Node.js & Express.js</li>
-          <li><span class="bullet">•</span> RESTful Architecture</li>
-          <li><span class="bullet">•</span> Modern JavaScript fetch()</li>
-          <li><span class="bullet">•</span> Responsive Flex & Grid</li>
+          <li><span class="bullet">•</span> MongoDB Atlas (Free Tier)</li>
+          <li><span class="bullet">•</span> Mongoose ODM & Validation</li>
+          <li><span class="bullet">•</span> Express.js REST CRUD API</li>
+          <li><span class="bullet">•</span> Async fetch() Frontend</li>
         </ul>
       </div>
 
@@ -361,7 +386,7 @@
     </div>
   </footer>
 
-  <!-- ================= MODAL: GET ONE ITEM BY ID ================= -->
+  <!-- ================= MODAL: VIEW TASK DETAILS (GET :id) ================= -->
   <div class="modal-backdrop" id="detailModal" aria-hidden="true">
     <div class="modal-dialog" role="dialog" aria-labelledby="modalTitle">
       <div class="modal-header">
@@ -379,6 +404,89 @@
       <div class="modal-footer">
         <button class="btn btn-secondary" id="modalCloseAction">Close</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: EDIT TASK (PUT :id) ================= -->
+  <div class="modal-backdrop" id="editModal" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-labelledby="editModalTitle">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="badge-put">PUT /api/tasks/:id</span>
+          <h3 id="editModalTitle" class="modal-title">Edit Task</h3>
+        </div>
+        <button class="modal-close" id="editModalCloseBtn" aria-label="Close edit dialog">&times;</button>
+      </div>
+
+      <form id="editTaskForm" novalidate>
+        <input type="hidden" id="editTaskId" />
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="editTitle" class="form-label">Task Title <span class="required">*</span></label>
+            <input type="text" id="editTitle" class="form-input" minlength="3" maxlength="100" required />
+            <span class="field-error" id="editTitleError"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="editDescription" class="form-label">Description <span class="required">*</span></label>
+            <textarea id="editDescription" rows="3" class="form-input form-textarea" minlength="5" maxlength="1000" required></textarea>
+            <span class="field-error" id="editDescriptionError"></span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="editCategory" class="form-label">Category</label>
+              <select id="editCategory" class="form-select">
+                <option value="Frontend">Frontend</option>
+                <option value="Backend">Backend</option>
+                <option value="Fullstack">Fullstack</option>
+                <option value="Database">Database</option>
+                <option value="DevOps">DevOps</option>
+                <option value="Testing">Testing</option>
+                <option value="General">General</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="editPriority" class="form-label">Priority</label>
+              <select id="editPriority" class="form-select">
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="editStatus" class="form-label">Status</label>
+              <select id="editStatus" class="form-select">
+                <option value="Pending">Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="editDueDate" class="form-label">Due Date</label>
+              <input type="date" id="editDueDate" class="form-input" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="editAssignee" class="form-label">Assigned To</label>
+            <input type="text" id="editAssignee" class="form-input" maxlength="60" />
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="editModalCancelBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="editSubmitBtn">
+            <span class="btn-text">💾 Save Changes (PUT)</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 

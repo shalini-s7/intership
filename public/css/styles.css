@@ -319,6 +319,30 @@ code {
   letter-spacing: 0.03em;
 }
 
+.badge-put {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.03em;
+}
+
+.badge-delete {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-sm);
+  letter-spacing: 0.03em;
+}
+
 .endpoint-badge {
   font-size: 0.8rem;
   font-weight: 700;
@@ -787,6 +811,44 @@ code {
   border-color: var(--primary);
 }
 
+.card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.btn-sm {
+  padding: 0.35rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-edit {
+  background: #f1f5f9;
+  color: #334155;
+  border-color: #cbd5e1;
+}
+
+.btn-edit:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.btn-delete {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+}
+
+.btn-delete:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
 /* State Containers (Loading & Empty) */
 .state-container {
   text-align: center;
@@ -897,6 +959,18 @@ code {
   background: rgba(16, 185, 129, 0.2);
   color: #34d399;
   border: 1px solid #059669;
+}
+
+.method.put {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid #d97706;
+}
+
+.method.delete {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border: 1px solid #dc2626;
 }
 
 .endpoint {
@@ -1321,3 +1395,4 @@ code {
     text-align: center;
   }
 }
+

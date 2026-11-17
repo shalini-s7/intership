@@ -1,25 +1,53 @@
-# TaskPulse - Full-Stack Web Application
+# TaskPulse - Full-Stack Task & Project Platform
 
-A clean, responsive web application with an **Express.js** backend and dynamic **vanilla JavaScript** frontend connecting to a RESTful API via `fetch()`. Built for the full-stack internship submission.
+A clean, responsive full-stack web application engineered with an **Express.js** backend, **MongoDB Atlas** database, **Mongoose Schemas** with strict input validation, and complete **CRUD RESTful endpoints** (`POST`, `GET`, `PUT`, `DELETE`). The frontend is connected asynchronously via modern JavaScript `fetch()`.
 
 [![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-blue?logo=github)](https://github.com/shalini-s7/intership)
-[![Node.js Version](https://img.shields.io/badge/Node.js-v22+-green.svg)](https://nodejs.org/)
+[![Database: MongoDB](https://img.shields.io/badge/Database-MongoDB%20Atlas-green?logo=mongodb)](https://www.mongodb.com/cloud/atlas)
+[![ORM: Mongoose](https://img.shields.io/badge/ODM-Mongoose%208.x-red)](https://mongoosejs.com/)
 [![Express](https://img.shields.io/badge/Express-5.x-lightgrey.svg)](https://expressjs.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
 
-## 📌 Project Overview
+## 📌 Features & Architecture Overview
 
-This project satisfies all requirements for the full-stack internship assessment:
-1. **Responsive Frontend UI**: Clean layout structured with semantic `<header>`, `<main class="content">`, and `<footer>`. Fully responsive on mobile, tablet, and desktop.
-2. **Express.js Backend**: Initialized with `npm init`, Express dependencies installed, and modular server setup in `server.js`.
-3. **3 REST API Endpoints**:
-   - `GET /api/tasks` — Retrieve all tasks (supports query filtering).
-   - `GET /api/tasks/:id` — Retrieve a single task by ID.
-   - `POST /api/tasks` — Create a new task with JSON validation.
-4. **Asynchronous API Integration**: Frontend uses modern `fetch()` to communicate seamlessly with backend endpoints, including live state updates, loading spinners, and toast alerts.
-5. **Version Control**: Complete source code structured and pushed to GitHub.
+1. **Database Layer (MongoDB Atlas Free Tier)**:
+   - Configured with `mongoose` connection manager (`config/db.js`).
+   - Supports MongoDB Atlas connection string (`MONGODB_URI` via `.env`).
+   - Seamless fallback in-memory store so the app can be tested out-of-the-box even before entering database credentials.
+
+2. **Mongoose Schema & Models (`models/Task.js`)**:
+   - `title`: String, required, trimmed, min 3, max 100 characters.
+   - `description`: String, required, trimmed, min 5, max 1000 characters.
+   - `category`: String, required, enum (`Frontend`, `Backend`, `Fullstack`, `Database`, `DevOps`, `Testing`, `General`).
+   - `priority`: String, required, enum (`High`, `Medium`, `Low`), default `Medium`.
+   - `status`: String, required, enum (`Pending`, `In Progress`, `Completed`), default `Pending`.
+   - `assignedTo`: String, trimmed, max 60 characters.
+   - `dueDate`: Date format validation.
+   - `timestamps: true`: Automatic `createdAt` and `updatedAt`.
+   - Optimized compound and text indexes.
+
+3. **Complete RESTful CRUD Endpoints (`routes/taskRoutes.js`)**:
+   - **`POST /api/tasks`**: Create a new task with strict validation.
+   - **`GET /api/tasks`**: Retrieve all tasks with query filtering (`category`, `status`, `search`, `sortBy`).
+   - **`GET /api/tasks/:id`**: Retrieve single task by ID.
+   - **`PUT /api/tasks/:id`**: Update existing task by ID with `runValidators: true`.
+   - **`DELETE /api/tasks/:id`**: Delete a task by ID.
+   - **`GET /api/health`**: Real-time server and database connection status check.
+
+4. **Input Validation & Error Handling Middleware**:
+   - `middleware/validation.js`: Validates required fields, character lengths, enum options, date formats, and ID integrity before hitting database controllers.
+   - `middleware/errorHandler.js`: Intercepts Mongoose `ValidationError`, `CastError`, duplicate key errors, syntax errors, and sends standard HTTP error codes (`400`, `404`, `500`).
+
+5. **Responsive Frontend UI (`public/`)**:
+   - Header with mobile hamburger navigation, status badge, and GitHub links.
+   - Metric overview cards (Total, Completed, In Progress, Pending).
+   - Task creation form with real-time field validation and spinner.
+   - Search box and dropdown filters.
+   - Task cards with **Details (GET)**, **Edit (PUT)**, and **Delete (DELETE)** interactive triggers.
+   - Modal dialogs for viewing single task and updating task fields.
+   - Floating toast notification alerts.
 
 ---
 
@@ -27,115 +55,155 @@ This project satisfies all requirements for the full-stack internship assessment
 
 ```text
 intership/
-├── .gitignore             # Ignores node_modules, temp logs, OS files
-├── package.json           # Dependencies and project metadata
-├── package-lock.json      # Dependency lockfile
-├── server.js              # Express backend and REST API routes
-├── README.md              # Documentation and instructions
-└── public/                # Static frontend assets
-    ├── index.html         # Semantic HTML5 markup (Header, Content, Footer, Modal)
+├── .env                   # Local environment variables (ignored by Git)
+├── .env.example           # Template for environment variables
+├── .gitignore             # Git ignore file (node_modules, .env, logs)
+├── package.json           # Dependencies and scripts
+├── package-lock.json      # Exact dependency tree
+├── server.js              # Express app entry point
+├── README.md              # Complete project documentation
+├── config/
+│   └── db.js              # MongoDB Atlas connection handler
+├── models/
+│   └── Task.js            # Mongoose Schema & model definition
+├── routes/
+│   └── taskRoutes.js      # Express router for CRUD operations
+├── middleware/
+│   ├── validation.js      # Input validation middleware
+│   └── errorHandler.js    # Global error handling middleware
+└── public/
+    ├── index.html         # Responsive semantic UI (Header, Content, Footer, Modals)
     ├── css/
-    │   └── styles.css     # Clean responsive styling, CSS variables & media queries
+    │   └── styles.css     # CSS custom variables, Grid, Flexbox, media queries
     └── js/
-        └── app.js         # Client-side fetch() API calls & DOM interactions
+        └── app.js         # Frontend fetch() async CRUD client logic
 ```
 
 ---
 
 ## 🚀 REST API Specification
 
-| Method | Endpoint | Description | Request Body | Response Status |
+| Method | Endpoint | Action | Request Body | Status Codes |
 | :--- | :--- | :--- | :--- | :--- |
-| **GET** | `/api/tasks` | Fetch list of all tasks | None | `200 OK` |
-| **GET** | `/api/tasks/:id` | Fetch single task by numeric ID | None | `200 OK` or `404 Not Found` |
-| **POST** | `/api/tasks` | Create a new task | JSON Object (see schema below) | `201 Created` or `400 Bad Request` |
-| **GET** | `/api/health` | Server uptime & status check | None | `200 OK` |
+| **POST** | `/api/tasks` | Create new task | JSON task payload | `201 Created`, `400 Bad Request` |
+| **GET** | `/api/tasks` | Read all tasks | Query params (optional) | `200 OK`, `500 Server Error` |
+| **GET** | `/api/tasks/:id` | Read single task by ID | None | `200 OK`, `400 Invalid ID`, `404 Not Found` |
+| **PUT** | `/api/tasks/:id` | Update task by ID | Partial / full JSON payload | `200 OK`, `400 Bad Request`, `404 Not Found` |
+| **DELETE** | `/api/tasks/:id` | Delete task by ID | None | `200 OK`, `400 Invalid ID`, `404 Not Found` |
+| **GET** | `/api/health` | Service & DB status | None | `200 OK` |
 
-### Sample POST Request Body:
+### Sample POST / PUT Request Body:
 ```json
 {
-  "title": "Build Authentication Module",
-  "description": "Implement secure authentication tokens and middleware guards.",
-  "category": "Backend",
+  "title": "Setup MongoDB Atlas Replica Set",
+  "description": "Configure connection strings, database users, and IP whitelisting.",
+  "category": "Database",
   "priority": "High",
   "status": "In Progress",
   "assignedTo": "Shalini S",
-  "dueDate": "2026-11-25"
+  "dueDate": "2026-11-28"
+}
+```
+
+### Sample Validation Error Response (HTTP 400):
+```json
+{
+  "success": false,
+  "error": "Validation Error",
+  "message": "Input validation failed. Please check the provided fields.",
+  "details": [
+    {
+      "field": "title",
+      "message": "Task title must be at least 3 characters long."
+    },
+    {
+      "field": "description",
+      "message": "Task description is required."
+    }
+  ]
 }
 ```
 
 ---
 
-## 💻 Frontend & UI Features
+## 🍃 MongoDB Atlas Setup Guide (Free Tier M0)
 
-- **Semantic Layout**:
-  - **Header**: Brand identity, responsive navigation links, mobile hamburger menu, GitHub shortcut.
-  - **Content (Main)**:
-    - Welcome hero banner with live metric counter cards.
-    - Responsive two-column workspace (Left: Task creation form; Right: Task grid).
-    - Real-time search filter and category/status dropdowns.
-    - Interactive "View Details" trigger calling `GET /api/tasks/:id` to display modal.
-  - **Footer**: Brand summary, server status badge, tech stack breakdown, and GitHub repository links.
-- **Asynchronous Data Layer (`fetch`)**:
-  - `loadTasks()`: Calls `GET /api/tasks` to render dynamic task cards.
-  - `viewTaskDetails(id)`: Calls `GET /api/tasks/:id` to populate single-task modal dialog.
-  - `handleFormSubmit()`: Calls `POST /api/tasks` with JSON payload and refreshes state.
-- **Responsive Design**: Fluid grid and flexbox layout optimized for all device sizes (`mobile < 768px`, `tablet 768px-1024px`, `desktop > 1024px`).
+Follow these steps to connect your own free MongoDB Atlas cluster:
+
+1. **Sign Up / Log In**:
+   Visit [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) and register for a free account.
+2. **Create a Free Cluster**:
+   Choose the **Shared M0 (Free)** tier and select your nearest AWS/Google Cloud region.
+3. **Create Database User**:
+   In **Database Access**, click **Add New Database User**. Choose **Password Authentication**, enter a username (e.g. `shalini`) and password, and assign **Read and write to any database** privileges.
+4. **Configure Network Access**:
+   In **Network Access**, click **Add IP Address** and choose **Allow Access from Anywhere** (`0.0.0.0/0`) or add your current IP.
+5. **Obtain Connection String**:
+   Click **Database** &rarr; **Connect** &rarr; **Drivers** (Node.js). Copy your connection string:
+   ```text
+   mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/taskpulse?retryWrites=true&w=majority
+   ```
+6. **Add to `.env`**:
+   Create or edit `.env` in the root folder:
+   ```env
+   PORT=3000
+   MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/taskpulse?retryWrites=true&w=majority
+   ```
 
 ---
 
-## 🛠️ Getting Started
+## 🛠️ Installation & Local Execution
 
-### 1. Prerequisites
-- [Node.js](https://nodejs.org/) (v16.x or higher)
-- [npm](https://www.npmjs.com/) (v8.x or higher)
-- [Git](https://git-scm.com/)
-
-### 2. Clone the Repository
+### 1. Clone Repository
 ```bash
 git clone https://github.com/shalini-s7/intership.git
 cd intership
 ```
 
-### 3. Install Dependencies
+### 2. Install Dependencies
 ```bash
 npm install
 ```
 
-### 4. Start the Application
+### 3. Start the Server
 ```bash
 npm start
 ```
-By default, the server runs on `http://localhost:3000`.
 
-### 5. Access the Web App
-Open your favorite browser and visit:
+### 4. Open Application
+Open your browser and navigate to:
 ```
 http://localhost:3000
 ```
 
 ---
 
-## 🧪 Testing the API via cURL
-
-You can also test the endpoints directly from your command line:
+## 🧪 Testing with cURL / Postman
 
 ```bash
-# 1. GET all tasks
-curl http://localhost:3000/api/tasks
-
-# 2. GET single task by ID
-curl http://localhost:3000/api/tasks/1
-
-# 3. POST create a new task
+# 1. Create a task (POST)
 curl -X POST http://localhost:3000/api/tasks \
   -H "Content-Type: application/json" \
-  -d '{"title":"API Testing","description":"Verify endpoint status codes","category":"Testing","priority":"High","status":"Completed","assignedTo":"QA Lead"}'
+  -d '{"title":"Dockerize Application","description":"Build multi-stage Dockerfile","category":"DevOps","priority":"High","status":"Pending","assignedTo":"DevOps Lead"}'
+
+# 2. Get all tasks (GET)
+curl http://localhost:3000/api/tasks
+
+# 3. Get single task by ID (GET)
+curl http://localhost:3000/api/tasks/<task_id>
+
+# 4. Update task (PUT)
+curl -X PUT http://localhost:3000/api/tasks/<task_id> \
+  -H "Content-Type: application/json" \
+  -d '{"status":"Completed","priority":"Low"}'
+
+# 5. Delete task (DELETE)
+curl -X DELETE http://localhost:3000/api/tasks/<task_id>
 ```
 
 ---
 
 ## 👩‍💻 Author
 
-- **GitHub Profile**: [@shalini-s7](https://github.com/shalini-s7)
+- **GitHub**: [@shalini-s7](https://github.com/shalini-s7)
 - **Repository**: [shalini-s7/intership](https://github.com/shalini-s7/intership)
