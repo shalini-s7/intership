@@ -3,18 +3,28 @@
 A clean, responsive full-stack web application engineered with an **Express.js** backend, **MongoDB Atlas** database, **Bcrypt password hashing**, **JWT authentication middleware**, strict **Mongoose Schemas**, **complete CRUD endpoints**, and **server-side search & pagination**. The client is connected asynchronously via modern JavaScript `fetch()`.
 
 [![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-blue?logo=github)](https://github.com/shalini-s7/intership)
+[![Deploy on Render](https://img.shields.io/badge/Deploy-Render-46E3B7?logo=render)](https://render.com)
+[![Deploy with Vercel](https://img.shields.io/badge/Deploy-Vercel-black?logo=vercel)](https://vercel.com)
 [![Security: Bcrypt & JWT](https://img.shields.io/badge/Security-Bcrypt%20%2B%20JWT-purple?logo=jsonwebtokens)](https://jwt.io/)
 [![Database: MongoDB](https://img.shields.io/badge/Database-MongoDB%20Atlas-green?logo=mongodb)](https://www.mongodb.com/cloud/atlas)
 [![ODM: Mongoose](https://img.shields.io/badge/ODM-Mongoose%208.x-red)](https://mongoosejs.com/)
-[![Express](https://img.shields.io/badge/Express-5.x-lightgrey.svg)](https://expressjs.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+---
+
+## 🔗 Live Deployments & Repository Links
+
+- **GitHub Repository**: [https://github.com/shalini-s7/intership](https://github.com/shalini-s7/intership)
+- **Live Backend (Render / Railway)**: `https://taskpulse-backend.onrender.com` (or Railway)
+- **Live Frontend (Vercel / Netlify)**: `https://taskpulse-app.vercel.app` (or Netlify)
+- **API Reference Documentation**: See [docs/API.md](docs/API.md)
 
 ---
 
 ## 📌 Architecture & Features Overview
 
 ### 1. Authentication & Security
-- **Registration (`POST /api/auth/register` or `/signup`)**:
+- **Registration (`POST /api/auth/register`)**:
   - Validates `name`, `email` (regex checked), and `password` (minimum 6 characters).
   - Automatically hashes user passwords with `bcryptjs` using 10 salt rounds before saving.
   - Returns a signed JSON Web Token (`JWT`) with user metadata.
@@ -70,7 +80,12 @@ intership/
 ├── package.json           # Dependencies and scripts
 ├── package-lock.json      # Exact dependency tree
 ├── server.js              # Express app entry point & route mounting
+├── render.yaml            # Render Blueprint deployment config
+├── vercel.json            # Vercel deployment & route rewriting config
+├── netlify.toml           # Netlify build & SPA redirect config
 ├── README.md              # Complete project documentation
+├── docs/
+│   └── API.md             # Complete REST API reference & schemas
 ├── config/
 │   └── db.js              # MongoDB Atlas connection handler
 ├── models/
@@ -110,69 +125,51 @@ intership/
 | **DELETE** | `/api/tasks/:id` | Delete task by ID | **Yes (JWT)** | None | `200 OK`, `401 Unauthorized`, `404 Not Found` |
 | **GET** | `/api/health` | Service & DB status check | No | None | `200 OK` |
 
----
-
-## 🧪 Testing with cURL / API Clients
-
-```bash
-# 1. Register a new user (password is hashed with bcrypt)
-curl -X POST http://localhost:3000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Shalini S","email":"shalini@example.com","password":"password123"}'
-
-# 2. Login to obtain JWT Token
-curl -X POST http://localhost:3000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"shalini@example.com","password":"password123"}'
-
-# Save the returned token:
-# TOKEN="your_jwt_token_here"
-
-# 3. Access protected user profile
-curl http://localhost:3000/api/auth/me \
-  -H "Authorization: Bearer $TOKEN"
-
-# 4. Create task with JWT Bearer Token
-curl -X POST http://localhost:3000/api/tasks \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $TOKEN" \
-  -d '{"title":"Implement Redis Caching","description":"Cache high-traffic task queries","category":"Backend","priority":"High","status":"Pending"}'
-
-# 5. Search tasks with pagination
-curl "http://localhost:3000/api/tasks?search=Redis&page=1&limit=5"
-
-# 6. Update task with JWT Bearer Token
-curl -X PUT http://localhost:3000/api/tasks/<task_id> \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer $TOKEN" \
-  -d '{"status":"Completed"}'
-
-# 7. Delete task with JWT Bearer Token
-curl -X DELETE http://localhost:3000/api/tasks/<task_id> \
-  -H "Authorization: Bearer $TOKEN"
-```
+Full parameter and JSON schemas are detailed in [docs/API.md](docs/API.md).
 
 ---
 
-## 🛠️ Quick Start
+## ☁️ Deployment Instructions
 
-```bash
-# 1. Clone repository
-git clone https://github.com/shalini-s7/intership.git
-cd intership
+### 1. Deploy Backend to Render (Free Tier)
+1. Sign up / Log in to [Render](https://render.com).
+2. Click **New +** &rarr; **Web Service** &rarr; Connect repository `https://github.com/shalini-s7/intership`.
+3. Render automatically detects [`render.yaml`](render.yaml) or configure:
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+4. In **Environment Variables**, add:
+   - `NODE_ENV`: `production`
+   - `JWT_SECRET`: `your_random_jwt_secret`
+   - `MONGODB_URI`: Your MongoDB Atlas connection string.
+5. Click **Deploy**.
 
-# 2. Install dependencies
-npm install
+### 2. Deploy Frontend to Vercel
+1. Go to [Vercel](https://vercel.com/new).
+2. Import Git repository `shalini-s7/intership`.
+3. Vercel automatically detects [`vercel.json`](vercel.json).
+4. Click **Deploy**.
 
-# 3. Configure .env (optional for MongoDB Atlas)
-# Copy .env.example to .env and insert MONGODB_URI if connecting to Atlas
+### 3. Deploy Frontend to Netlify
+1. Go to [Netlify](https://app.netlify.com/start).
+2. Connect GitHub repository `shalini-s7/intership`.
+3. Netlify automatically reads [`netlify.toml`](netlify.toml) with publish directory `public`.
+4. Click **Deploy Site**.
 
-# 4. Start the application
-npm start
+---
 
-# 5. Open browser
-# Navigate to http://localhost:3000
-```
+## 🧪 Interactive Demo Walkthrough
+
+1. **Visit the Web App**: Open `http://localhost:3000` or your live URL.
+2. **Explore Public Tasks**: Use the live **Search** bar, filter by category/status, or click pagination buttons (`1`, `2`, `3`...).
+3. **Sign In**:
+   - Click **"Sign In / Register"** in the top navigation.
+   - Click **"Auto-fill"** to use demo credentials: `shalini@example.com` / `password123` (or register a new account).
+   - Click **"Sign In"**; the JWT token is stored and the header updates to show your user profile.
+4. **Create a Task (POST)**: Fill out the task creation form on the left; notice `createdBy` is automatically assigned to your logged-in user.
+5. **View Task Details (GET)**: Click **"Details"** on any card to view the single-task modal dialog.
+6. **Edit Task (PUT)**: Click **"Edit"** on a card, update its status or priority, and save changes.
+7. **Delete Task (DELETE)**: Click the **"&times;"** delete button to remove a task.
+8. **Log Out**: Click **"Log Out"** in the header to clear credentials and return to read-only guest mode.
 
 ---
 

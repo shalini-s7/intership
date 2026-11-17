@@ -3,8 +3,15 @@
  * Features: Bcrypt Password Hashing, JWT Authentication Guard, CRUD, Search & Pagination
  */
 
-const API_BASE = '/api/tasks';
-const AUTH_BASE = '/api/auth';
+// Production API URL Configuration
+// Allows dynamic backend configuration for split deployments (e.g. Netlify/Vercel frontend + Render/Railway backend)
+const BACKEND_URL = (window.TASKPULSE_CONFIG && window.TASKPULSE_CONFIG.API_URL) ||
+                    localStorage.getItem('taskpulse_api_url') ||
+                    '';
+
+const API_BASE = `${BACKEND_URL}/api/tasks`;
+const AUTH_BASE = `${BACKEND_URL}/api/auth`;
+const HEALTH_BASE = `${BACKEND_URL}/api/health`;
 
 // State
 let authToken = localStorage.getItem('taskpulse_token') || null;
@@ -480,7 +487,7 @@ function requireAuth(actionName = 'perform this action') {
    ========================================================== */
 async function checkDatabaseHealth() {
   try {
-    const res = await fetch('/api/health');
+    const res = await fetch(HEALTH_BASE);
     const data = await res.json();
     if (dbStatusText) {
       if (data.databaseReadyState === 1) {
