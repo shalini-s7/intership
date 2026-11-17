@@ -39,3 +39,4 @@ const connectDB = async () => {
 const getIsConnected = () => isConnected;
 
 module.exports = { connectDB, getIsConnected };
+

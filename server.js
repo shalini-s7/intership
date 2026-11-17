@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 
 const { connectDB } = require('./config/db');
 const taskRoutes = require('./routes/taskRoutes');
+const authRoutes = require('./routes/authRoutes');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -23,6 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // API Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/tasks', taskRoutes);
 
 // Health check endpoint
@@ -62,13 +64,17 @@ app.use(errorHandler);
 const server = app.listen(PORT, () => {
   console.log(`\n======================================================`);
   console.log(`🚀 TaskPulse Server is running on http://localhost:${PORT}`);
-  console.log(`📡 REST API Endpoints:`);
-  console.log(`   - POST   /api/tasks        (Create task with validation)`);
-  console.log(`   - GET    /api/tasks        (Get all tasks + query filters)`);
-  console.log(`   - GET    /api/tasks/:id    (Get one task by ID)`);
-  console.log(`   - PUT    /api/tasks/:id    (Update task with validation)`);
-  console.log(`   - DELETE /api/tasks/:id    (Delete task by ID)`);
-  console.log(`   - GET    /api/health       (Database & Server status)`);
+  console.log(`📡 Authentication Endpoints:`);
+  console.log(`   - POST   /api/auth/register (Bcrypt password hashing & JWT)`);
+  console.log(`   - POST   /api/auth/login    (Verify credentials & return JWT)`);
+  console.log(`   - GET    /api/auth/me       (Protected with JWT middleware)`);
+  console.log(`📡 Task Management Endpoints:`);
+  console.log(`   - GET    /api/tasks         (Search & pagination: ?search=&page=&limit=)`);
+  console.log(`   - GET    /api/tasks/:id     (Get single task by ID)`);
+  console.log(`   - POST   /api/tasks         (Protected: Create task)`);
+  console.log(`   - PUT    /api/tasks/:id     (Protected: Update task)`);
+  console.log(`   - DELETE /api/tasks/:id     (Protected: Delete task)`);
+  console.log(`   - GET    /api/health        (Database & Server status)`);
   console.log(`======================================================\n`);
 });
 

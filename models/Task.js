@@ -92,3 +92,4 @@ taskSchema.index({ category: 1, status: 1 });
 const Task = mongoose.models.Task || mongoose.model('Task', taskSchema);
 
 module.exports = Task;
+

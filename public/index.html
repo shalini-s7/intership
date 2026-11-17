@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Clean and responsive full-stack task manager with Express, Mongoose schemas, MongoDB Atlas, and complete CRUD endpoints." />
-  <title>TaskPulse | MongoDB & Express Full-Stack Project</title>
+  <meta name="description" content="Clean and responsive full-stack task manager with Express, MongoDB Atlas, JWT Authentication, and Pagination." />
+  <title>TaskPulse | JWT Auth, MongoDB & Pagination Full-Stack</title>
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +18,7 @@
       <a href="#top" class="brand-logo" aria-label="TaskPulse Home">
         <span class="logo-icon">⚡</span>
         <span class="logo-text">Task<span>Pulse</span></span>
-        <span class="badge-tag">MongoDB &bull; CRUD</span>
+        <span class="badge-tag">JWT &bull; CRUD</span>
       </a>
 
       <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false">
@@ -32,9 +32,29 @@
           <li><a href="#dashboard" class="nav-link active">Dashboard</a></li>
           <li><a href="#tasks-section" class="nav-link">Tasks</a></li>
           <li><a href="#create-section" class="nav-link">New Task</a></li>
-          <li><a href="#api-info" class="nav-link">CRUD & Schema</a></li>
+          <li><a href="#api-info" class="nav-link">API & Auth</a></li>
         </ul>
+
+        <!-- Authentication Header Controls -->
         <div class="nav-actions">
+          <div id="unauthNav" class="auth-group">
+            <button class="btn btn-outline-primary" id="openAuthModalBtn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+              <span>Sign In / Register</span>
+            </button>
+          </div>
+
+          <div id="authNav" class="auth-group hidden">
+            <div class="user-chip" id="userChip">
+              <span class="user-avatar" id="headerUserAvatar">U</span>
+              <span class="user-name" id="headerUserName">User</span>
+            </div>
+            <button class="btn btn-sm btn-logout" id="logoutBtn" title="Log Out">Log Out</button>
+          </div>
+
           <a href="https://github.com/shalini-s7/intership" target="_blank" rel="noopener noreferrer" class="btn btn-github">
             <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
@@ -53,14 +73,14 @@
     <section class="hero-section" id="dashboard">
       <div class="container hero-container">
         <div class="hero-text">
-          <div class="pill-badge">Full-Stack Database Architecture</div>
-          <h1 class="hero-title">MongoDB Atlas & Mongoose CRUD Platform</h1>
+          <div class="pill-badge">Bcrypt &bull; JWT Auth &bull; Pagination &bull; Mongoose</div>
+          <h1 class="hero-title">Secure Full-Stack Task & REST Platform</h1>
           <p class="hero-subtitle">
-            Engineered with <strong>MongoDB Atlas</strong>, <strong>Mongoose Schema validation</strong>, and complete <strong>RESTful CRUD</strong> operations (<code class="code-pill">POST</code>, <code class="code-pill">GET</code>, <code class="code-pill">PUT</code>, <code class="code-pill">DELETE</code>) seamlessly integrated with a responsive frontend.
+            Engineered with <strong>bcrypt password hashing</strong>, <strong>JWT authentication middleware</strong>, <strong>MongoDB Mongoose Schemas</strong>, and server-side <strong>search & pagination</strong>.
           </p>
           <div class="hero-buttons">
-            <a href="#create-section" class="btn btn-primary">+ Create Task (POST)</a>
-            <a href="#tasks-section" class="btn btn-secondary">Explore Tasks (GET &bull; PUT &bull; DELETE)</a>
+            <a href="#create-section" class="btn btn-primary">+ Create Task (Protected)</a>
+            <a href="#tasks-section" class="btn btn-secondary">Explore Tasks & Pagination</a>
           </div>
         </div>
 
@@ -101,13 +121,17 @@
     <!-- Main Content Workspace (Split Layout) -->
     <section class="workspace-section container">
       
-      <!-- Left Column: Form to create a new task (POST create) -->
+      <!-- Left Column: Form to create a new task (POST create - Protected) -->
       <aside class="create-card-wrapper" id="create-section">
         <div class="card form-card">
           <div class="card-header">
-            <div class="badge-post">POST /api/tasks</div>
+            <div class="badge-post">POST /api/tasks &bull; JWT Protected</div>
             <h2 class="card-title">Add New Task</h2>
-            <p class="card-subtitle">Submits validated payload to MongoDB via Mongoose schema</p>
+            <p class="card-subtitle">Protected route secured with JWT bearer token middleware</p>
+          </div>
+
+          <div id="authPromptBanner" class="auth-prompt-banner">
+            <span>🔒 Please <button type="button" class="btn-link" id="bannerLoginLink">Sign In</button> to create, edit, or delete tasks.</span>
           </div>
 
           <form id="createTaskForm" class="task-form" novalidate>
@@ -118,7 +142,7 @@
                 id="taskTitle" 
                 name="title" 
                 class="form-input" 
-                placeholder="e.g. Implement MongoDB Atlas Indexing" 
+                placeholder="e.g. Implement JWT Refresh Tokens" 
                 minlength="3"
                 maxlength="100"
                 required 
@@ -205,7 +229,7 @@
         </div>
       </aside>
 
-      <!-- Right Column: Task List (GET all, PUT update, DELETE) -->
+      <!-- Right Column: Task List (Search & Pagination) -->
       <section class="tasks-content" id="tasks-section">
         
         <!-- Controls Bar: Filter, Search & Refresh -->
@@ -219,7 +243,7 @@
               type="text" 
               id="searchInput" 
               class="search-input" 
-              placeholder="Search tasks by title, description or assignee..." 
+              placeholder="Search tasks by keyword (title, desc, assignee)..." 
               aria-label="Search tasks"
             />
           </div>
@@ -257,16 +281,35 @@
         <div class="tasks-header">
           <div>
             <h2 class="tasks-heading">Task Management Board</h2>
-            <p class="tasks-subtext">Live Mongoose CRUD Operations (GET &bull; POST &bull; PUT &bull; DELETE)</p>
+            <p class="tasks-subtext" id="paginationStatusText">Showing tasks with live search & pagination</p>
           </div>
           <div class="badge-cluster">
-            <span class="endpoint-badge">CRUD Active</span>
+            <span class="endpoint-badge">JWT Guarded CRUD</span>
           </div>
         </div>
 
         <!-- Dynamic Container for Task Cards -->
         <div id="tasksGrid" class="tasks-grid">
           <!-- Populated dynamically by app.js -->
+        </div>
+
+        <!-- Pagination Controls Bar -->
+        <div class="pagination-bar" id="paginationBar">
+          <div class="pagination-info">
+            <span id="pageInfoText">Page 1 of 1</span>
+            <label for="limitSelect" class="limit-label">Per page:
+              <select id="limitSelect" class="limit-select">
+                <option value="6" selected>6</option>
+                <option value="9">9</option>
+                <option value="12">12</option>
+              </select>
+            </label>
+          </div>
+          <div class="pagination-nav">
+            <button class="btn btn-sm btn-page-nav" id="prevPageBtn" disabled>&larr; Previous</button>
+            <div class="page-numbers" id="pageNumbers"></div>
+            <button class="btn btn-sm btn-page-nav" id="nextPageBtn" disabled>Next &rarr;</button>
+          </div>
         </div>
 
         <!-- Loading Spinner -->
@@ -285,43 +328,53 @@
 
     </section>
 
-    <!-- REST API & Schema Specification Section -->
+    <!-- REST API & Auth Specification Section -->
     <section class="api-section container" id="api-info">
       <div class="api-card">
         <div class="api-card-header">
-          <span class="api-tag">Database Architecture &bull; Mongoose Schema</span>
-          <h3 class="api-title">Full CRUD Endpoints & Validation Rules</h3>
+          <span class="api-tag">Architecture &bull; Bcrypt &bull; JWT &bull; Pagination</span>
+          <h3 class="api-title">Authentication & Task API Specifications</h3>
         </div>
         <div class="api-grid">
           <div class="api-item">
             <span class="method post">POST</span>
-            <code class="endpoint">/api/tasks</code>
-            <p class="endpoint-desc">Creates new task in MongoDB. Validates title (min 3 chars), description (min 5 chars), and enums.</p>
+            <code class="endpoint">/api/auth/register</code>
+            <p class="endpoint-desc">Registers a new user with bcrypt password hashing (10 salt rounds) and returns JWT token.</p>
+          </div>
+          <div class="api-item">
+            <span class="method post">POST</span>
+            <code class="endpoint">/api/auth/login</code>
+            <p class="endpoint-desc">Validates credentials with bcrypt.compare and returns signed JSON Web Token.</p>
+          </div>
+          <div class="api-item">
+            <span class="method get">GET</span>
+            <code class="endpoint">/api/auth/me</code>
+            <p class="endpoint-desc">Protected route: Verifies JWT token and returns authenticated user profile.</p>
           </div>
           <div class="api-item">
             <span class="method get">GET</span>
             <code class="endpoint">/api/tasks</code>
-            <p class="endpoint-desc">Retrieves all tasks with optional query filters (search, category, status, sortBy).</p>
+            <p class="endpoint-desc">Retrieves tasks with <strong>search</strong> (regex) and <strong>pagination</strong> (<code>?page=&limit=</code>).</p>
           </div>
           <div class="api-item">
-            <span class="method get">GET</span>
-            <code class="endpoint">/api/tasks/:id</code>
-            <p class="endpoint-desc">Retrieves a single task by ID. Validates MongoDB ObjectId format, returns 404 if not found.</p>
+            <span class="method post">POST</span>
+            <code class="endpoint">/api/tasks</code>
+            <p class="endpoint-desc"><strong>Protected (JWT)</strong>: Creates task in MongoDB. Validates fields and sets <code>createdBy</code>.</p>
           </div>
           <div class="api-item">
             <span class="method put">PUT</span>
             <code class="endpoint">/api/tasks/:id</code>
-            <p class="endpoint-desc">Updates task fields with Mongoose <code>runValidators: true</code>. Returns updated document.</p>
+            <p class="endpoint-desc"><strong>Protected (JWT)</strong>: Updates task fields with Mongoose <code>runValidators: true</code>.</p>
           </div>
           <div class="api-item">
             <span class="method delete">DELETE</span>
             <code class="endpoint">/api/tasks/:id</code>
-            <p class="endpoint-desc">Deletes task document from MongoDB by ID. Returns deleted record confirmation.</p>
+            <p class="endpoint-desc"><strong>Protected (JWT)</strong>: Deletes task document from MongoDB by ID.</p>
           </div>
           <div class="api-item">
             <span class="method get">GET</span>
             <code class="endpoint">/api/health</code>
-            <p class="endpoint-desc">Health probe returning server uptime and MongoDB connection state.</p>
+            <p class="endpoint-desc">Service probe returning server uptime and MongoDB connection state.</p>
           </div>
         </div>
       </div>
@@ -338,7 +391,7 @@
           <span class="logo-text">Task<span>Pulse</span></span>
         </div>
         <p class="footer-desc">
-          Full-stack database architecture project built with MongoDB Atlas, Mongoose schemas, Express.js REST API, and modern responsive frontend.
+          Full-stack web application featuring bcrypt password hashing, JWT authorization guards, MongoDB Atlas, and search & pagination.
         </p>
         <div class="server-badge" id="dbStatusBadge">
           <span class="status-dot"></span>
@@ -352,17 +405,17 @@
           <li><a href="#dashboard">Dashboard</a></li>
           <li><a href="#tasks-section">Task Board</a></li>
           <li><a href="#create-section">Create Task</a></li>
-          <li><a href="#api-info">CRUD & Schema Spec</a></li>
+          <li><a href="#api-info">API Spec</a></li>
         </ul>
       </div>
 
       <div class="footer-col">
-        <h4 class="footer-title">Tech Stack</h4>
+        <h4 class="footer-title">Features</h4>
         <ul class="footer-links">
-          <li><span class="bullet">•</span> MongoDB Atlas (Free Tier)</li>
-          <li><span class="bullet">•</span> Mongoose ODM & Validation</li>
-          <li><span class="bullet">•</span> Express.js REST CRUD API</li>
-          <li><span class="bullet">•</span> Async fetch() Frontend</li>
+          <li><span class="bullet">•</span> Bcrypt Password Hashing</li>
+          <li><span class="bullet">•</span> JWT Auth Middleware</li>
+          <li><span class="bullet">•</span> Search & Pagination</li>
+          <li><span class="bullet">•</span> MongoDB Atlas Free Tier</li>
         </ul>
       </div>
 
@@ -386,6 +439,86 @@
     </div>
   </footer>
 
+  <!-- ================= AUTH MODAL (LOGIN & REGISTER) ================= -->
+  <div class="modal-backdrop" id="authModal" aria-hidden="true">
+    <div class="modal-dialog auth-dialog" role="dialog" aria-labelledby="authModalHeading">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="badge-post" id="authBadge">POST /api/auth</span>
+          <h3 id="authModalHeading" class="modal-title">Account Access</h3>
+        </div>
+        <button class="modal-close" id="authModalCloseBtn" aria-label="Close authentication dialog">&times;</button>
+      </div>
+
+      <!-- Tab Switcher -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tabLoginBtn" type="button">Sign In</button>
+        <button class="auth-tab" id="tabRegisterBtn" type="button">Create Account</button>
+      </div>
+
+      <!-- Form 1: Login -->
+      <form id="loginForm" class="auth-form" novalidate>
+        <div class="modal-body">
+          <div class="demo-account-hint">
+            💡 <strong>Demo Credentials:</strong> <code>shalini@example.com</code> / <code>password123</code>
+            <button type="button" class="btn-link" id="fillDemoCredentials">Auto-fill</button>
+          </div>
+
+          <div class="form-group">
+            <label for="loginEmail" class="form-label">Email Address <span class="required">*</span></label>
+            <input type="email" id="loginEmail" class="form-input" placeholder="e.g. shalini@example.com" required />
+            <span class="field-error" id="loginEmailError"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="loginPassword" class="form-label">Password <span class="required">*</span></label>
+            <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required />
+            <span class="field-error" id="loginPasswordError"></span>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="loginCancelBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="loginSubmitBtn">
+            <span class="btn-text">🔐 Sign In (Get JWT)</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Form 2: Register -->
+      <form id="registerForm" class="auth-form hidden" novalidate>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="regName" class="form-label">Full Name <span class="required">*</span></label>
+            <input type="text" id="regName" class="form-input" placeholder="e.g. Shalini S" minlength="2" required />
+            <span class="field-error" id="regNameError"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="regEmail" class="form-label">Email Address <span class="required">*</span></label>
+            <input type="email" id="regEmail" class="form-input" placeholder="name@domain.com" required />
+            <span class="field-error" id="regEmailError"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="regPassword" class="form-label">Password (Min 6 characters) <span class="required">*</span></label>
+            <input type="password" id="regPassword" class="form-input" placeholder="Create a secure password" minlength="6" required />
+            <span class="field-error" id="regPasswordError"></span>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="registerCancelBtn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="registerSubmitBtn">
+            <span class="btn-text">🚀 Register Account (Bcrypt)</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- ================= MODAL: VIEW TASK DETAILS (GET :id) ================= -->
   <div class="modal-backdrop" id="detailModal" aria-hidden="true">
     <div class="modal-dialog" role="dialog" aria-labelledby="modalTitle">
@@ -407,12 +540,12 @@
     </div>
   </div>
 
-  <!-- ================= MODAL: EDIT TASK (PUT :id) ================= -->
+  <!-- ================= MODAL: EDIT TASK (PUT :id - Protected) ================= -->
   <div class="modal-backdrop" id="editModal" aria-hidden="true">
     <div class="modal-dialog" role="dialog" aria-labelledby="editModalTitle">
       <div class="modal-header">
         <div class="modal-title-wrap">
-          <span class="badge-put">PUT /api/tasks/:id</span>
+          <span class="badge-put">PUT /api/tasks/:id &bull; JWT Protected</span>
           <h3 id="editModalTitle" class="modal-title">Edit Task</h3>
         </div>
         <button class="modal-close" id="editModalCloseBtn" aria-label="Close edit dialog">&times;</button>

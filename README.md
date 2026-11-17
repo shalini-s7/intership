@@ -1,53 +1,62 @@
-# TaskPulse - Full-Stack Task & Project Platform
+# TaskPulse - Full-Stack Secure Task Management Platform
 
-A clean, responsive full-stack web application engineered with an **Express.js** backend, **MongoDB Atlas** database, **Mongoose Schemas** with strict input validation, and complete **CRUD RESTful endpoints** (`POST`, `GET`, `PUT`, `DELETE`). The frontend is connected asynchronously via modern JavaScript `fetch()`.
+A clean, responsive full-stack web application engineered with an **Express.js** backend, **MongoDB Atlas** database, **Bcrypt password hashing**, **JWT authentication middleware**, strict **Mongoose Schemas**, **complete CRUD endpoints**, and **server-side search & pagination**. The client is connected asynchronously via modern JavaScript `fetch()`.
 
 [![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-blue?logo=github)](https://github.com/shalini-s7/intership)
+[![Security: Bcrypt & JWT](https://img.shields.io/badge/Security-Bcrypt%20%2B%20JWT-purple?logo=jsonwebtokens)](https://jwt.io/)
 [![Database: MongoDB](https://img.shields.io/badge/Database-MongoDB%20Atlas-green?logo=mongodb)](https://www.mongodb.com/cloud/atlas)
-[![ORM: Mongoose](https://img.shields.io/badge/ODM-Mongoose%208.x-red)](https://mongoosejs.com/)
+[![ODM: Mongoose](https://img.shields.io/badge/ODM-Mongoose%208.x-red)](https://mongoosejs.com/)
 [![Express](https://img.shields.io/badge/Express-5.x-lightgrey.svg)](https://expressjs.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
 
-## 📌 Features & Architecture Overview
+## 📌 Architecture & Features Overview
 
-1. **Database Layer (MongoDB Atlas Free Tier)**:
-   - Configured with `mongoose` connection manager (`config/db.js`).
-   - Supports MongoDB Atlas connection string (`MONGODB_URI` via `.env`).
-   - Seamless fallback in-memory store so the app can be tested out-of-the-box even before entering database credentials.
+### 1. Authentication & Security
+- **Registration (`POST /api/auth/register` or `/signup`)**:
+  - Validates `name`, `email` (regex checked), and `password` (minimum 6 characters).
+  - Automatically hashes user passwords with `bcryptjs` using 10 salt rounds before saving.
+  - Returns a signed JSON Web Token (`JWT`) with user metadata.
+- **Login (`POST /api/auth/login`)**:
+  - Verifies user email and compares password using `bcrypt.compare`.
+  - Returns a signed JWT token on valid credentials (`401 Unauthorized` on mismatch).
+- **JWT Protection Middleware (`middleware/auth.js`)**:
+  - Guard middleware that validates the `Authorization: Bearer <token>` header.
+  - Verifies JWT signatures, extracts user payload, and attaches `req.user`.
+  - Blocks unauthorized requests to protected routes (`POST`, `PUT`, `DELETE`).
+- **Profile Endpoint (`GET /api/auth/me`)**:
+  - Protected endpoint returning the current authenticated user's profile.
 
-2. **Mongoose Schema & Models (`models/Task.js`)**:
-   - `title`: String, required, trimmed, min 3, max 100 characters.
-   - `description`: String, required, trimmed, min 5, max 1000 characters.
-   - `category`: String, required, enum (`Frontend`, `Backend`, `Fullstack`, `Database`, `DevOps`, `Testing`, `General`).
-   - `priority`: String, required, enum (`High`, `Medium`, `Low`), default `Medium`.
-   - `status`: String, required, enum (`Pending`, `In Progress`, `Completed`), default `Pending`.
-   - `assignedTo`: String, trimmed, max 60 characters.
-   - `dueDate`: Date format validation.
-   - `timestamps: true`: Automatic `createdAt` and `updatedAt`.
-   - Optimized compound and text indexes.
+### 2. Database & Data Models
+- **Mongoose User Schema (`models/User.js`)**:
+  - Fields: `name`, `email` (unique, lowercase), `password` (hashed, hidden by default), `role` (`user` / `admin`).
+  - Pre-save hook for bcrypt password hashing and `matchPassword` instance method.
+- **Mongoose Task Schema (`models/Task.js`)**:
+  - Fields: `title`, `description`, `category`, `priority`, `status`, `assignedTo`, `createdBy`, `dueDate`, `timestamps`.
+  - Compound and text indexes for fast querying.
+- **MongoDB Atlas Integration (`config/db.js`)**:
+  - Free tier M0 connection via `MONGODB_URI` environment variable.
+  - Automatic fallback in-memory store for instant zero-config testing.
 
-3. **Complete RESTful CRUD Endpoints (`routes/taskRoutes.js`)**:
-   - **`POST /api/tasks`**: Create a new task with strict validation.
-   - **`GET /api/tasks`**: Retrieve all tasks with query filtering (`category`, `status`, `search`, `sortBy`).
-   - **`GET /api/tasks/:id`**: Retrieve single task by ID.
-   - **`PUT /api/tasks/:id`**: Update existing task by ID with `runValidators: true`.
-   - **`DELETE /api/tasks/:id`**: Delete a task by ID.
-   - **`GET /api/health`**: Real-time server and database connection status check.
+### 3. Server-Side Features: Search & Pagination
+- **Multi-Field Search**:
+  - Search query (`?search=...`) performs case-insensitive regex filtering across `title`, `description`, and `assignedTo`.
+- **Dynamic Pagination**:
+  - Pagination query (`?page=1&limit=6`) computes page slices, offsets, `totalPages`, and returns navigation flags (`hasNextPage`, `hasPrevPage`).
+- **Filtering & Sorting**:
+  - Supports `category`, `status`, `sortBy`, and `order` query parameters.
 
-4. **Input Validation & Error Handling Middleware**:
-   - `middleware/validation.js`: Validates required fields, character lengths, enum options, date formats, and ID integrity before hitting database controllers.
-   - `middleware/errorHandler.js`: Intercepts Mongoose `ValidationError`, `CastError`, duplicate key errors, syntax errors, and sends standard HTTP error codes (`400`, `404`, `500`).
-
-5. **Responsive Frontend UI (`public/`)**:
-   - Header with mobile hamburger navigation, status badge, and GitHub links.
-   - Metric overview cards (Total, Completed, In Progress, Pending).
-   - Task creation form with real-time field validation and spinner.
-   - Search box and dropdown filters.
-   - Task cards with **Details (GET)**, **Edit (PUT)**, and **Delete (DELETE)** interactive triggers.
-   - Modal dialogs for viewing single task and updating task fields.
-   - Floating toast notification alerts.
+### 4. Responsive Frontend UI (`public/`)
+- **Authentication System**:
+  - Sign In / Register tabs modal with client-side validation.
+  - Header profile chip displaying user avatar and name when logged in.
+  - One-click demo credentials auto-fill (`shalini@example.com` / `password123`).
+  - Safe token storage in `localStorage` (`taskpulse_token`).
+- **Interactive CRUD & Pagination**:
+  - Search bar with debounced live querying.
+  - Responsive pagination bar with page switcher buttons and items-per-page dropdown.
+  - View Details modal (GET :id), Edit Task modal (PUT :id), and Delete task action (DELETE :id).
 
 ---
 
@@ -55,150 +64,114 @@ A clean, responsive full-stack web application engineered with an **Express.js**
 
 ```text
 intership/
-├── .env                   # Local environment variables (ignored by Git)
+├── .env                   # Local environment variables (JWT_SECRET, MONGODB_URI)
 ├── .env.example           # Template for environment variables
 ├── .gitignore             # Git ignore file (node_modules, .env, logs)
 ├── package.json           # Dependencies and scripts
 ├── package-lock.json      # Exact dependency tree
-├── server.js              # Express app entry point
+├── server.js              # Express app entry point & route mounting
 ├── README.md              # Complete project documentation
 ├── config/
 │   └── db.js              # MongoDB Atlas connection handler
 ├── models/
-│   └── Task.js            # Mongoose Schema & model definition
+│   ├── User.js            # Mongoose User schema with bcrypt pre-save hook
+│   └── Task.js            # Mongoose Task schema & model definition
 ├── routes/
-│   └── taskRoutes.js      # Express router for CRUD operations
+│   ├── authRoutes.js      # Auth router: /register, /login, /me
+│   └── taskRoutes.js      # Task router: CRUD, search, pagination
 ├── middleware/
+│   ├── auth.js            # JWT verification & token generator middleware
 │   ├── validation.js      # Input validation middleware
 │   └── errorHandler.js    # Global error handling middleware
 └── public/
-    ├── index.html         # Responsive semantic UI (Header, Content, Footer, Modals)
-    ├── css/
-    │   └── styles.css     # CSS custom variables, Grid, Flexbox, media queries
-    └── js/
-        └── app.js         # Frontend fetch() async CRUD client logic
+    ├── index.html         # Responsive semantic UI with Auth & CRUD Modals
+    ├── css/styles.css     # CSS custom variables, Grid, Flexbox, media queries
+    └── js/app.js          # Client-side async fetch() with JWT auth header
 ```
 
 ---
 
-## 🚀 REST API Specification
+## 🚀 Complete REST API Specification
 
-| Method | Endpoint | Action | Request Body | Status Codes |
-| :--- | :--- | :--- | :--- | :--- |
-| **POST** | `/api/tasks` | Create new task | JSON task payload | `201 Created`, `400 Bad Request` |
-| **GET** | `/api/tasks` | Read all tasks | Query params (optional) | `200 OK`, `500 Server Error` |
-| **GET** | `/api/tasks/:id` | Read single task by ID | None | `200 OK`, `400 Invalid ID`, `404 Not Found` |
-| **PUT** | `/api/tasks/:id` | Update task by ID | Partial / full JSON payload | `200 OK`, `400 Bad Request`, `404 Not Found` |
-| **DELETE** | `/api/tasks/:id` | Delete task by ID | None | `200 OK`, `400 Invalid ID`, `404 Not Found` |
-| **GET** | `/api/health` | Service & DB status | None | `200 OK` |
+### Authentication Endpoints
+| Method | Endpoint | Description | Protected | Request Body | Status Codes |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **POST** | `/api/auth/register` | Register user (bcrypt hash) | No | `{ name, email, password }` | `201 Created`, `400 Bad Request`, `409 Conflict` |
+| **POST** | `/api/auth/login` | Verify credentials & get JWT | No | `{ email, password }` | `200 OK`, `400 Bad Request`, `401 Unauthorized` |
+| **GET** | `/api/auth/me` | Get authenticated user | **Yes (JWT)** | None | `200 OK`, `401 Unauthorized` |
 
-### Sample POST / PUT Request Body:
-```json
-{
-  "title": "Setup MongoDB Atlas Replica Set",
-  "description": "Configure connection strings, database users, and IP whitelisting.",
-  "category": "Database",
-  "priority": "High",
-  "status": "In Progress",
-  "assignedTo": "Shalini S",
-  "dueDate": "2026-11-28"
-}
-```
-
-### Sample Validation Error Response (HTTP 400):
-```json
-{
-  "success": false,
-  "error": "Validation Error",
-  "message": "Input validation failed. Please check the provided fields.",
-  "details": [
-    {
-      "field": "title",
-      "message": "Task title must be at least 3 characters long."
-    },
-    {
-      "field": "description",
-      "message": "Task description is required."
-    }
-  ]
-}
-```
+### Task Management Endpoints
+| Method | Endpoint | Description | Protected | Query / Body | Status Codes |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **GET** | `/api/tasks` | Read tasks (search & paginate) | No | `?search=&page=&limit=` | `200 OK` |
+| **GET** | `/api/tasks/:id` | Read single task by ID | No | None | `200 OK`, `400 Bad Request`, `404 Not Found` |
+| **POST** | `/api/tasks` | Create new task | **Yes (JWT)** | JSON task payload | `201 Created`, `400 Bad Request`, `401 Unauthorized` |
+| **PUT** | `/api/tasks/:id` | Update task by ID | **Yes (JWT)** | Partial / full JSON payload | `200 OK`, `400 Bad Request`, `401`, `404` |
+| **DELETE** | `/api/tasks/:id` | Delete task by ID | **Yes (JWT)** | None | `200 OK`, `401 Unauthorized`, `404 Not Found` |
+| **GET** | `/api/health` | Service & DB status check | No | None | `200 OK` |
 
 ---
 
-## 🍃 MongoDB Atlas Setup Guide (Free Tier M0)
-
-Follow these steps to connect your own free MongoDB Atlas cluster:
-
-1. **Sign Up / Log In**:
-   Visit [MongoDB Atlas](https://www.mongodb.com/cloud/atlas) and register for a free account.
-2. **Create a Free Cluster**:
-   Choose the **Shared M0 (Free)** tier and select your nearest AWS/Google Cloud region.
-3. **Create Database User**:
-   In **Database Access**, click **Add New Database User**. Choose **Password Authentication**, enter a username (e.g. `shalini`) and password, and assign **Read and write to any database** privileges.
-4. **Configure Network Access**:
-   In **Network Access**, click **Add IP Address** and choose **Allow Access from Anywhere** (`0.0.0.0/0`) or add your current IP.
-5. **Obtain Connection String**:
-   Click **Database** &rarr; **Connect** &rarr; **Drivers** (Node.js). Copy your connection string:
-   ```text
-   mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/taskpulse?retryWrites=true&w=majority
-   ```
-6. **Add to `.env`**:
-   Create or edit `.env` in the root folder:
-   ```env
-   PORT=3000
-   MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/taskpulse?retryWrites=true&w=majority
-   ```
-
----
-
-## 🛠️ Installation & Local Execution
-
-### 1. Clone Repository
-```bash
-git clone https://github.com/shalini-s7/intership.git
-cd intership
-```
-
-### 2. Install Dependencies
-```bash
-npm install
-```
-
-### 3. Start the Server
-```bash
-npm start
-```
-
-### 4. Open Application
-Open your browser and navigate to:
-```
-http://localhost:3000
-```
-
----
-
-## 🧪 Testing with cURL / Postman
+## 🧪 Testing with cURL / API Clients
 
 ```bash
-# 1. Create a task (POST)
+# 1. Register a new user (password is hashed with bcrypt)
+curl -X POST http://localhost:3000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Shalini S","email":"shalini@example.com","password":"password123"}'
+
+# 2. Login to obtain JWT Token
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"shalini@example.com","password":"password123"}'
+
+# Save the returned token:
+# TOKEN="your_jwt_token_here"
+
+# 3. Access protected user profile
+curl http://localhost:3000/api/auth/me \
+  -H "Authorization: Bearer $TOKEN"
+
+# 4. Create task with JWT Bearer Token
 curl -X POST http://localhost:3000/api/tasks \
   -H "Content-Type: application/json" \
-  -d '{"title":"Dockerize Application","description":"Build multi-stage Dockerfile","category":"DevOps","priority":"High","status":"Pending","assignedTo":"DevOps Lead"}'
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"title":"Implement Redis Caching","description":"Cache high-traffic task queries","category":"Backend","priority":"High","status":"Pending"}'
 
-# 2. Get all tasks (GET)
-curl http://localhost:3000/api/tasks
+# 5. Search tasks with pagination
+curl "http://localhost:3000/api/tasks?search=Redis&page=1&limit=5"
 
-# 3. Get single task by ID (GET)
-curl http://localhost:3000/api/tasks/<task_id>
-
-# 4. Update task (PUT)
+# 6. Update task with JWT Bearer Token
 curl -X PUT http://localhost:3000/api/tasks/<task_id> \
   -H "Content-Type: application/json" \
-  -d '{"status":"Completed","priority":"Low"}'
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"status":"Completed"}'
 
-# 5. Delete task (DELETE)
-curl -X DELETE http://localhost:3000/api/tasks/<task_id>
+# 7. Delete task with JWT Bearer Token
+curl -X DELETE http://localhost:3000/api/tasks/<task_id> \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+---
+
+## 🛠️ Quick Start
+
+```bash
+# 1. Clone repository
+git clone https://github.com/shalini-s7/intership.git
+cd intership
+
+# 2. Install dependencies
+npm install
+
+# 3. Configure .env (optional for MongoDB Atlas)
+# Copy .env.example to .env and insert MONGODB_URI if connecting to Atlas
+
+# 4. Start the application
+npm start
+
+# 5. Open browser
+# Navigate to http://localhost:3000
 ```
 
 ---

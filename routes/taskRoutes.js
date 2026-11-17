@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const Task = require('../models/Task');
+const { protect } = require('../middleware/auth');
 const {
   validateTaskId,
   validateCreateTask,
@@ -19,6 +20,7 @@ let fallbackTasks = [
     priority: 'High',
     status: 'Completed',
     assignedTo: 'Shalini S',
+    createdBy: 'Shalini S',
     dueDate: '2026-11-20',
     createdAt: new Date('2026-11-15T09:00:00Z').toISOString(),
     updatedAt: new Date('2026-11-15T09:00:00Z').toISOString()
@@ -32,6 +34,7 @@ let fallbackTasks = [
     priority: 'High',
     status: 'In Progress',
     assignedTo: 'Backend Team',
+    createdBy: 'Backend Team',
     dueDate: '2026-11-22',
     createdAt: new Date('2026-11-16T11:30:00Z').toISOString(),
     updatedAt: new Date('2026-11-16T11:30:00Z').toISOString()
@@ -45,6 +48,7 @@ let fallbackTasks = [
     priority: 'High',
     status: 'In Progress',
     assignedTo: 'DBA / Fullstack',
+    createdBy: 'Lead Architect',
     dueDate: '2026-11-24',
     createdAt: new Date('2026-11-17T12:00:00Z').toISOString(),
     updatedAt: new Date('2026-11-17T12:00:00Z').toISOString()
@@ -52,15 +56,58 @@ let fallbackTasks = [
   {
     id: '673a388f8b4d1a2f90444444',
     _id: '673a388f8b4d1a2f90444444',
+    title: 'JWT Authentication & Protected Middleware',
+    description: 'Implement bcrypt password hashing, login token generation, and auth guard middleware to secure CRUD routes.',
+    category: 'Backend',
+    priority: 'High',
+    status: 'Completed',
+    assignedTo: 'Security Engineer',
+    createdBy: 'Security Engineer',
+    dueDate: '2026-11-25',
+    createdAt: new Date('2026-11-17T13:00:00Z').toISOString(),
+    updatedAt: new Date('2026-11-17T13:00:00Z').toISOString()
+  },
+  {
+    id: '673a388f8b4d1a2f90555555',
+    _id: '673a388f8b4d1a2f90555555',
     title: 'Client-Side CRUD Fetch Integration',
     description: 'Connect frontend UI with backend endpoints using modern asynchronous JavaScript fetch() calls for POST, GET, PUT, and DELETE.',
     category: 'Fullstack',
     priority: 'Medium',
-    status: 'Pending',
+    status: 'In Progress',
     assignedTo: 'Shalini S',
+    createdBy: 'Shalini S',
     dueDate: '2026-11-26',
     createdAt: new Date('2026-11-17T14:15:00Z').toISOString(),
     updatedAt: new Date('2026-11-17T14:15:00Z').toISOString()
+  },
+  {
+    id: '673a388f8b4d1a2f90666666',
+    _id: '673a388f8b4d1a2f90666666',
+    title: 'Pagination & Multi-Field Search Features',
+    description: 'Add server-side pagination with page and limit parameters, search by title/desc/assignee, and responsive UI page switcher.',
+    category: 'Fullstack',
+    priority: 'Medium',
+    status: 'Pending',
+    assignedTo: 'Fullstack Dev',
+    createdBy: 'Fullstack Dev',
+    dueDate: '2026-11-27',
+    createdAt: new Date('2026-11-17T15:00:00Z').toISOString(),
+    updatedAt: new Date('2026-11-17T15:00:00Z').toISOString()
+  },
+  {
+    id: '673a388f8b4d1a2f90777777',
+    _id: '673a388f8b4d1a2f90777777',
+    title: 'Automated Test Suite & GitHub Actions',
+    description: 'Write integration test scripts covering authentication, validation rules, pagination, and API error codes.',
+    category: 'Testing',
+    priority: 'Low',
+    status: 'Pending',
+    assignedTo: 'QA Lead',
+    createdBy: 'QA Lead',
+    dueDate: '2026-11-30',
+    createdAt: new Date('2026-11-17T16:00:00Z').toISOString(),
+    updatedAt: new Date('2026-11-17T16:00:00Z').toISOString()
   }
 ];
 
@@ -68,14 +115,26 @@ const isDbConnected = () => mongoose.connection.readyState === 1;
 
 /**
  * -------------------------------------------------------------------------
- * 1. GET ALL TASKS
+ * 1. GET ALL TASKS (SEARCH, FILTER & PAGINATION)
  * Endpoint: GET /api/tasks
- * Query Params: category, status, search, sortBy, order
+ * Query Params: page, limit, search, category, status, sortBy, order
  * -------------------------------------------------------------------------
  */
 router.get('/', async (req, res, next) => {
   try {
-    const { category, status, search, sortBy = 'createdAt', order = 'desc' } = req.query;
+    const {
+      page = 1,
+      limit = 6,
+      search,
+      category,
+      status,
+      sortBy = 'createdAt',
+      order = 'desc'
+    } = req.query;
+
+    const pageNum = Math.max(1, parseInt(page, 10) || 1);
+    const limitNum = Math.max(1, Math.min(50, parseInt(limit, 10) || 6));
+    const skip = (pageNum - 1) * limitNum;
 
     if (isDbConnected()) {
       const query = {};
@@ -96,46 +155,73 @@ router.get('/', async (req, res, next) => {
         ];
       }
 
+      const totalTasks = await Task.countDocuments(query);
+      const totalPages = Math.ceil(totalTasks / limitNum) || 1;
+
       const sortOptions = {};
       sortOptions[sortBy] = order === 'asc' ? 1 : -1;
 
-      const tasks = await Task.find(query).sort(sortOptions);
+      const tasks = await Task.find(query)
+        .sort(sortOptions)
+        .skip(skip)
+        .limit(limitNum);
 
       return res.status(200).json({
         success: true,
         source: 'mongodb',
         count: tasks.length,
+        pagination: {
+          currentPage: pageNum,
+          totalPages,
+          totalTasks,
+          limit: limitNum,
+          hasNextPage: pageNum < totalPages,
+          hasPrevPage: pageNum > 1
+        },
         data: tasks
       });
     }
 
-    // Fallback in-memory filter
-    let results = [...fallbackTasks];
+    // In-Memory Fallback Filter & Pagination
+    let filtered = [...fallbackTasks];
 
     if (category && category !== 'All') {
-      results = results.filter(t => t.category.toLowerCase() === category.toLowerCase());
+      filtered = filtered.filter(t => t.category.toLowerCase() === category.toLowerCase());
     }
 
     if (status && status !== 'All') {
-      results = results.filter(t => t.status.toLowerCase() === status.toLowerCase());
+      filtered = filtered.filter(t => t.status.toLowerCase() === status.toLowerCase());
     }
 
     if (search) {
       const q = search.toLowerCase();
-      results = results.filter(t =>
+      filtered = filtered.filter(t =>
         t.title.toLowerCase().includes(q) ||
         t.description.toLowerCase().includes(q) ||
-        t.assignedTo.toLowerCase().includes(q)
+        (t.assignedTo && t.assignedTo.toLowerCase().includes(q))
       );
     }
 
-    results.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    // Sorting
+    filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    const totalTasks = filtered.length;
+    const totalPages = Math.ceil(totalTasks / limitNum) || 1;
+    const paginated = filtered.slice(skip, skip + limitNum);
 
     return res.status(200).json({
       success: true,
       source: 'memory-fallback',
-      count: results.length,
-      data: results
+      count: paginated.length,
+      pagination: {
+        currentPage: pageNum,
+        totalPages,
+        totalTasks,
+        limit: limitNum,
+        hasNextPage: pageNum < totalPages,
+        hasPrevPage: pageNum > 1
+      },
+      data: paginated
     });
   } catch (error) {
     next(error);
@@ -201,14 +287,16 @@ router.get('/:id', validateTaskId, async (req, res, next) => {
 
 /**
  * -------------------------------------------------------------------------
- * 3. POST CREATE TASK
+ * 3. POST CREATE TASK (PROTECTED ROUTE)
  * Endpoint: POST /api/tasks
- * Body: { title, description, category, priority, status, assignedTo, dueDate }
+ * Headers: Authorization: Bearer <token>
  * -------------------------------------------------------------------------
  */
-router.post('/', validateCreateTask, async (req, res, next) => {
+router.post('/', protect, validateCreateTask, async (req, res, next) => {
   try {
     const { title, description, category, priority, status, assignedTo, dueDate } = req.body;
+
+    const creatorName = req.user && req.user.name ? req.user.name : 'Authenticated User';
 
     const payload = {
       title: title.trim(),
@@ -216,7 +304,8 @@ router.post('/', validateCreateTask, async (req, res, next) => {
       category: category || 'General',
       priority: priority || 'Medium',
       status: status || 'Pending',
-      assignedTo: assignedTo && assignedTo.trim() ? assignedTo.trim() : 'Unassigned',
+      assignedTo: assignedTo && assignedTo.trim() ? assignedTo.trim() : creatorName,
+      createdBy: creatorName,
       dueDate: dueDate || undefined
     };
 
@@ -256,12 +345,12 @@ router.post('/', validateCreateTask, async (req, res, next) => {
 
 /**
  * -------------------------------------------------------------------------
- * 4. PUT UPDATE TASK BY ID
+ * 4. PUT UPDATE TASK BY ID (PROTECTED ROUTE)
  * Endpoint: PUT /api/tasks/:id
- * Body: partial or full update fields
+ * Headers: Authorization: Bearer <token>
  * -------------------------------------------------------------------------
  */
-router.put('/:id', validateTaskId, validateUpdateTask, async (req, res, next) => {
+router.put('/:id', protect, validateTaskId, validateUpdateTask, async (req, res, next) => {
   try {
     const { id } = req.params;
     const updates = req.body;
@@ -276,8 +365,8 @@ router.put('/:id', validateTaskId, validateUpdateTask, async (req, res, next) =>
       }
 
       const updatedTask = await Task.findByIdAndUpdate(id, updates, {
-        new: true, // Return updated document
-        runValidators: true // Enforce schema validations on update
+        new: true,
+        runValidators: true
       });
 
       if (!updatedTask) {
@@ -329,11 +418,12 @@ router.put('/:id', validateTaskId, validateUpdateTask, async (req, res, next) =>
 
 /**
  * -------------------------------------------------------------------------
- * 5. DELETE TASK BY ID
+ * 5. DELETE TASK BY ID (PROTECTED ROUTE)
  * Endpoint: DELETE /api/tasks/:id
+ * Headers: Authorization: Bearer <token>
  * -------------------------------------------------------------------------
  */
-router.delete('/:id', validateTaskId, async (req, res, next) => {
+router.delete('/:id', protect, validateTaskId, async (req, res, next) => {
   try {
     const { id } = req.params;
 
