@@ -1,0 +1,22 @@
+{
+  "name": "intership",
+  "version": "1.0.0",
+  "description": "Full-stack project with responsive frontend and Express REST API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "express",
+    "rest-api",
+    "responsive-frontend",
+    "full-stack"
+  ],
+  "author": "shalini-s7",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.3.0"
+  }
+}

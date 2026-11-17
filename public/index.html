@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Clean and responsive internship web application with Express REST API integration." />
+  <title>TaskPulse | Internship Project Management</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ================= HEADER ================= -->
+  <header class="site-header" id="top">
+    <div class="container header-container">
+      <a href="#top" class="brand-logo" aria-label="TaskPulse Home">
+        <span class="logo-icon">⚡</span>
+        <span class="logo-text">Task<span>Pulse</span></span>
+        <span class="badge-tag">Internship</span>
+      </a>
+
+      <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation menu" aria-expanded="false">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <nav class="site-nav" id="siteNav">
+        <ul class="nav-links">
+          <li><a href="#dashboard" class="nav-link active">Dashboard</a></li>
+          <li><a href="#tasks-section" class="nav-link">Tasks</a></li>
+          <li><a href="#create-section" class="nav-link">New Task</a></li>
+          <li><a href="#api-info" class="nav-link">REST API</a></li>
+        </ul>
+        <div class="nav-actions">
+          <a href="https://github.com/shalini-s7/intership" target="_blank" rel="noopener noreferrer" class="btn btn-github">
+            <svg class="icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+            <span>GitHub</span>
+          </a>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- ================= MAIN CONTENT ================= -->
+  <main class="site-main">
+
+    <!-- Hero Section -->
+    <section class="hero-section" id="dashboard">
+      <div class="container hero-container">
+        <div class="hero-text">
+          <div class="pill-badge">Full-Stack Web Architecture</div>
+          <h1 class="hero-title">Internship Task & REST API Platform</h1>
+          <p class="hero-subtitle">
+            A responsive full-stack application engineered with an Express.js backend and clean modern frontend. Features real-time client-server communication using modern <code class="code-pill">fetch()</code> API across three REST endpoints.
+          </p>
+          <div class="hero-buttons">
+            <a href="#create-section" class="btn btn-primary">+ Create Task (POST)</a>
+            <a href="#tasks-section" class="btn btn-secondary">Explore All Tasks (GET)</a>
+          </div>
+        </div>
+
+        <!-- Live Metrics / Stats Cards -->
+        <div class="hero-stats">
+          <div class="stat-card">
+            <div class="stat-icon total-icon">📁</div>
+            <div class="stat-info">
+              <span class="stat-value" id="statTotal">--</span>
+              <span class="stat-label">Total Tasks</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon completed-icon">✅</div>
+            <div class="stat-info">
+              <span class="stat-value" id="statCompleted">--</span>
+              <span class="stat-label">Completed</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon progress-icon">⏳</div>
+            <div class="stat-info">
+              <span class="stat-value" id="statInProgress">--</span>
+              <span class="stat-label">In Progress</span>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon pending-icon">📌</div>
+            <div class="stat-info">
+              <span class="stat-value" id="statPending">--</span>
+              <span class="stat-label">Pending</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Content Workspace (Split Layout) -->
+    <section class="workspace-section container">
+      
+      <!-- Left Column: Form to create a new task (POST create) -->
+      <aside class="create-card-wrapper" id="create-section">
+        <div class="card form-card">
+          <div class="card-header">
+            <div class="badge-post">POST /api/tasks</div>
+            <h2 class="card-title">Add New Task</h2>
+            <p class="card-subtitle">Submits a JSON payload to the backend via asynchronous <code>fetch()</code></p>
+          </div>
+
+          <form id="createTaskForm" class="task-form" novalidate>
+            <div class="form-group">
+              <label for="taskTitle" class="form-label">Task Title <span class="required">*</span></label>
+              <input 
+                type="text" 
+                id="taskTitle" 
+                name="title" 
+                class="form-input" 
+                placeholder="e.g. Implement JWT Authentication" 
+                required 
+              />
+              <span class="field-error" id="titleError"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="taskDescription" class="form-label">Description <span class="required">*</span></label>
+              <textarea 
+                id="taskDescription" 
+                name="description" 
+                rows="3" 
+                class="form-input form-textarea" 
+                placeholder="Detailed objectives, criteria, and requirements..." 
+                required
+              ></textarea>
+              <span class="field-error" id="descriptionError"></span>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="taskCategory" class="form-label">Category</label>
+                <select id="taskCategory" name="category" class="form-select">
+                  <option value="Frontend">Frontend</option>
+                  <option value="Backend">Backend</option>
+                  <option value="Fullstack">Fullstack</option>
+                  <option value="Database">Database</option>
+                  <option value="DevOps">DevOps</option>
+                  <option value="Testing">Testing</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="taskPriority" class="form-label">Priority</label>
+                <select id="taskPriority" name="priority" class="form-select">
+                  <option value="High">High</option>
+                  <option value="Medium" selected>Medium</option>
+                  <option value="Low">Low</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="taskStatus" class="form-label">Initial Status</label>
+                <select id="taskStatus" name="status" class="form-select">
+                  <option value="Pending" selected>Pending</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Completed">Completed</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="taskDueDate" class="form-label">Due Date</label>
+                <input type="date" id="taskDueDate" name="dueDate" class="form-input" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="taskAssignee" class="form-label">Assigned To</label>
+              <input 
+                type="text" 
+                id="taskAssignee" 
+                name="assignedTo" 
+                class="form-input" 
+                placeholder="e.g. Shalini S" 
+                value="Shalini S"
+              />
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary btn-block" id="submitBtn">
+                <span class="btn-text">🚀 Create Task via POST</span>
+                <span class="btn-spinner" aria-hidden="true"></span>
+              </button>
+              <button type="reset" class="btn btn-text btn-block" id="resetBtn">Clear Form</button>
+            </div>
+          </form>
+        </div>
+      </aside>
+
+      <!-- Right Column: Task List (GET all) and Single View (GET one) -->
+      <section class="tasks-content" id="tasks-section">
+        
+        <!-- Controls Bar: Filter, Search & Refresh -->
+        <div class="controls-panel">
+          <div class="search-box">
+            <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input 
+              type="text" 
+              id="searchInput" 
+              class="search-input" 
+              placeholder="Search tasks by title, description or assignee..." 
+              aria-label="Search tasks"
+            />
+          </div>
+
+          <div class="filter-controls">
+            <select id="filterCategory" class="filter-select" aria-label="Filter by category">
+              <option value="All">All Categories</option>
+              <option value="Frontend">Frontend</option>
+              <option value="Backend">Backend</option>
+              <option value="Fullstack">Fullstack</option>
+              <option value="Database">Database</option>
+              <option value="DevOps">DevOps</option>
+            </select>
+
+            <select id="filterStatus" class="filter-select" aria-label="Filter by status">
+              <option value="All">All Statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Completed">Completed</option>
+            </select>
+
+            <button id="refreshBtn" class="btn btn-icon" title="Refresh Tasks from API">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M23 4v6h-6"></path>
+                <path d="M1 20v-6h6"></path>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Task List Header -->
+        <div class="tasks-header">
+          <div>
+            <h2 class="tasks-heading">Tasks & Deliverables</h2>
+            <p class="tasks-subtext">Populated via <code>GET /api/tasks</code></p>
+          </div>
+          <span class="endpoint-badge">GET /api/tasks</span>
+        </div>
+
+        <!-- Dynamic Container for Task Cards -->
+        <div id="tasksGrid" class="tasks-grid">
+          <!-- Populated dynamically by app.js -->
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loadingState" class="state-container hidden">
+          <div class="loader"></div>
+          <p>Fetching tasks from REST API...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="state-container hidden">
+          <div class="empty-icon">📭</div>
+          <h3>No Tasks Found</h3>
+          <p>No matching tasks found. Try adjusting your search query or add a new task!</p>
+        </div>
+      </section>
+
+    </section>
+
+    <!-- REST API Documentation Reference Strip -->
+    <section class="api-section container" id="api-info">
+      <div class="api-card">
+        <div class="api-card-header">
+          <span class="api-tag">REST API Architecture</span>
+          <h3 class="api-title">Implemented Endpoints Specification</h3>
+        </div>
+        <div class="api-grid">
+          <div class="api-item">
+            <span class="method get">GET</span>
+            <code class="endpoint">/api/tasks</code>
+            <p class="endpoint-desc">Retrieves list of all tasks. Supports optional query filters.</p>
+          </div>
+          <div class="api-item">
+            <span class="method get">GET</span>
+            <code class="endpoint">/api/tasks/:id</code>
+            <p class="endpoint-desc">Retrieves a single task by numeric ID with full metadata.</p>
+          </div>
+          <div class="api-item">
+            <span class="method post">POST</span>
+            <code class="endpoint">/api/tasks</code>
+            <p class="endpoint-desc">Creates a new task record from JSON body with validation.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-col brand-col">
+        <div class="brand-logo">
+          <span class="logo-icon">⚡</span>
+          <span class="logo-text">Task<span>Pulse</span></span>
+        </div>
+        <p class="footer-desc">
+          A high-performance, responsive full-stack project built for internship evaluation. Demonstrates Express.js backend services, semantic HTML5, modern CSS, and asynchronous frontend integration.
+        </p>
+        <div class="server-badge">
+          <span class="status-dot"></span>
+          <span>Backend Server: <strong>Active on Express</strong></span>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-title">Navigation</h4>
+        <ul class="footer-links">
+          <li><a href="#dashboard">Dashboard</a></li>
+          <li><a href="#tasks-section">Task Board</a></li>
+          <li><a href="#create-section">Create Task</a></li>
+          <li><a href="#api-info">API Spec</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-title">Tech Stack</h4>
+        <ul class="footer-links">
+          <li><span class="bullet">•</span> Node.js & Express.js</li>
+          <li><span class="bullet">•</span> RESTful Architecture</li>
+          <li><span class="bullet">•</span> Modern JavaScript fetch()</li>
+          <li><span class="bullet">•</span> Responsive Flex & Grid</li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="footer-title">Repository</h4>
+        <p class="footer-repo-text">Source code pushed and maintained on GitHub:</p>
+        <a href="https://github.com/shalini-s7/intership" target="_blank" rel="noopener noreferrer" class="footer-github-link">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+          </svg>
+          <span>shalini-s7/intership</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="container footer-bottom-container">
+        <p>© 2026 TaskPulse. Designed & Built for Fullstack Internship Submission.</p>
+        <p class="author-tag">Crafted by <strong>shalini-s7</strong></p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ================= MODAL: GET ONE ITEM BY ID ================= -->
+  <div class="modal-backdrop" id="detailModal" aria-hidden="true">
+    <div class="modal-dialog" role="dialog" aria-labelledby="modalTitle">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="badge-get">GET /api/tasks/:id</span>
+          <h3 id="modalTitle" class="modal-title">Task Details</h3>
+        </div>
+        <button class="modal-close" id="modalCloseBtn" aria-label="Close details dialog">&times;</button>
+      </div>
+
+      <div class="modal-body" id="modalBody">
+        <!-- Rendered dynamically by app.js when single task is fetched -->
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="modalCloseAction">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <!-- Client JavaScript -->
+  <script src="js/app.js"></script>
+</body>
+</html>
