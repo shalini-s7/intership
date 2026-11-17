@@ -18,3 +18,4 @@ services:
         value: 7d
       - key: MONGODB_URI
         sync: false
+
